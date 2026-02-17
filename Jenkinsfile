@@ -22,22 +22,18 @@ pipeline {
         stage('Run JMeter Test') {
             steps {
                 script {
-                    // 1. Force permissions so Docker can read the files
-                    sh "chmod -R 777 ." 
-                    
-                    // 2. Use $(pwd) for the volume mount - it is more reliable in Docker
-                    // 3. Added --user root to ensure the container has access
                     sh """
-                    docker run --rm --user root \
-                        -v "\$(pwd):/tests" \
-                        -w /tests \
-                        justb4/jmeter \
-                        -n -t PerformanceTest.jmx \
-                        -l results/output.jtl \
-                        -e -o reports/ \
-                        -Jusers=${params.THREADS} \
-                        -Jrampup=${params.RAMPUP}
-                    """
+                    docker run --rm \
+                    -v ${env.WORKSPACE}:/tests \
+                    -w /tests \
+                    justb4/jmeter \
+                    -n -t PerformanceTest.jmx \
+                    -l results/output.jtl \
+                    -e -o reports \
+                    -Jusers=${params.USERS ?: 10} \
+                    -Jrampup=${params.RAMPUP ?: 300}
+                """
+
                 }
             }
         }
