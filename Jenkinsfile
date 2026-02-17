@@ -22,10 +22,14 @@ pipeline {
         stage('Run JMeter Test') {
             steps {
                 script {
-                    sh "ls -R ${env.WORKSPACE}"
+                    // 1. Force permissions so Docker can read the files
+                    sh "chmod -R 777 ." 
+                    
+                    // 2. Use $(pwd) for the volume mount - it is more reliable in Docker
+                    // 3. Added --user root to ensure the container has access
                     sh """
-                    docker run --rm \
-                        -v "${env.WORKSPACE}:/tests" \
+                    docker run --rm --user root \
+                        -v "\$(pwd):/tests" \
                         -w /tests \
                         justb4/jmeter \
                         -n -t PerformanceTest.jmx \
@@ -37,7 +41,6 @@ pipeline {
                 }
             }
         }
-
         stage('Publish Report') {
             steps {
                 // This makes the report viewable directly in Jenkins
