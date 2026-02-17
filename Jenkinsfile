@@ -22,6 +22,7 @@ pipeline {
         stage('Run JMeter Test') {
             steps {
                 script {
+                    sh "ls -R ${env.WORKSPACE}"
                     sh """
                     docker run --rm \
                         -v "${env.WORKSPACE}:/tests" \
