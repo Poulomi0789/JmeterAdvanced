@@ -14,8 +14,7 @@ pipeline {
     stages {
         stage('Cleanup') {
             steps {
-                cleanWs()
-                // Ensure directories for results exist
+                sh 'rm -rf results reports' 
                 sh 'mkdir -p results reports'
             }
         }
@@ -23,8 +22,6 @@ pipeline {
         stage('Run JMeter Test') {
             steps {
                 script {
-                    // Running JMeter via Docker
-                    // We map the current workspace to /tests inside the container
                     sh """
                     docker run --rm \
                         -v "${env.WORKSPACE}:/tests" \
